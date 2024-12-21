@@ -11,7 +11,7 @@ from pydub import AudioSegment
 def save_audio(page_text, file_path, page_number, audio_dir):
     """Сохраняет аудио для одной страницы"""
     engine = pyttsx3.init()
-    engine.setProperty('rate', 200)  # Установите скорость речи
+    engine.setProperty('rate', 200)  
 
     output_file = Path(file_path).stem + f"_{page_number}.mp3"
     output_path = os.path.join(audio_dir, output_file)
@@ -23,6 +23,7 @@ def save_audio(page_text, file_path, page_number, audio_dir):
 
 
 def merge_audio(files, output_file):
+    """Соединяет все страницы в один файл"""
     audio_segments = [AudioSegment.from_wav(file) for file in files]
 
     combined_audio = audio_segments[0]
