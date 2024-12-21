@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Перевод текста в аудио mp3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background: #f3f3f3;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        header .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        header .logo img {
+            width: 30px;
+            animation: fadeIn 2s;
+        }
+
+        header .title {
+            font-size: 28px;
+            color: #333;
+            animation: fadeIn 2s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        main {
+            padding: 30px;
+        }
+
+        .upload-section {
+            margin: 20px auto;
+            padding: 30px;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            border-radius: 12px;
+            box-shadow: 5px 5px 10px #d1d1d1, -5px -5px 10px #ffffff;
+            max-width: 400px;
+            width: 100%;
+            transition: transform 0.3s;
+        }
+
+        .upload-section:hover {
+            transform: scale(1.03);
+        }
+
+        .upload-section h2 {
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .file-input-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 50px;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 50px;
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            background-color: #f4f4f4;
+            font-size: 16px;
+            color: #555;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .file-label:hover {
+            background-color: #e0f0ff;
+            border-color: #0056b3;
+        }
+
+        .upload-button {
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .upload-button:hover {
+            background-color: #0056b3;
+        }
+
+
+                #downloadButton {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        #downloadButton:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        #downloadButton:active {
+            background-color: #1e7e34;
+            transform: translateY(2px);
+        }
+
+        .result-section {
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .result-section .filename {
+            font-weight: bold;
+        }
+
+        .result-section a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: white;
+            color: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .result-section a:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Стили для радио кнопок */
+        .language-selector {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .language-selector label {
+            display: block;
+            font-size: 18px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        .language-selector input[type="radio"] {
+            display: none;
+        }
+
+        .language-selector .radio-label {
+            position: relative;
+            padding-left: 30px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .language-selector .radio-label::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #007bff;
+            border-radius: 50%;
+            background-color: white;
+            transition: all 0.3s;
+        }
+
+        .language-selector input[type="radio"]:checked + .radio-label::before {
+            background-color: #007bff;
+            border-color: #0056b3;
+        }
+
+        .language-selector input[type="radio"]:checked + .radio-label::after {
+            content: "✔";
+            position: absolute;
+            left: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: white;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .processing-message {
+            color: #007bff;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .complete-message {
+            color: green;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <div class="title">Перевод текста в аудио mp3</div>
+    </div>
+</header>
+
+<main>
+    <form id="add_file" action="{{ url_for('make_mp3') }}" method="POST" enctype="multipart/form-data">
+        <div class="upload-section">
+            <h2>Добавьте ваш текстовый файл</h2>
+            <div class="file-input-container">
+                <label for="fileInput" class="file-label">Выберите файл</label>
+                <input type="file" id="fileInput" class="file" name="file" accept=".docx, .pdf, .txt">
+            </div>
+
+            <!-- Блок выбора языка -->
+            <div class="language-selector">
+                <h3>Выберите язык озвучки</h3>
+                <!-- Радио кнопки для выбора языка -->
+                <label for="lang-ru">
+                    <input type="radio" id="lang-ru" name="language" value="ru">
+                    <span class="radio-label">Русский</span>
+                </label>
+                <label for="lang-en">
+                    <input type="radio" id="lang-en" name="language" value="en">
+                    <span class="radio-label">Английский</span>
+                </label>
+                <!-- Добавить другие языки по желанию -->
+            </div>
+
+            <button class="upload-button" id="processButton" type="button">Дальше</button>
+
+            <div class="error-message" id="error-message" style="display: none;">
+                Пожалуйста, выберите файл и язык для загрузки.
+            </div>
+
+            <div id="processingMessage" class="processing-message" style="display: none;">
+                Ваш файл обрабатывается, подождите...
+                Это может занять несколько минут.
+            </div>
+
+            <div id="completeMessage" class="complete-message" style="display: none;">
+                Ваш файл готов! Нажмите "Скачать".
+            </div>
+
+            <div id="errorStatus" class="error-message" style="display: none;">
+                Произошла ошибка при обработке файла. Попробуйте еще раз.
+            </div>
+        </div>
+    </form>
+
+    <div class="result-section" id="resultSection" style="display: none;">
+        <div>Ваш файл: <span class="filename" id="fileName">file.mp3</span></div>
+        <button id="downloadButton">Скачать</button>
+    </div>
+</main>
+
+<script>
+    const processButton = document.getElementById('processButton');
+    const fileInput = document.getElementById('fileInput');
+    const errorMessage = document.getElementById('error-message');
+    const processingMessage = document.getElementById('processingMessage');
+    const completeMessage = document.getElementById('completeMessage');
+    const errorStatus = document.getElementById('errorStatus');
+    const downloadButton = document.getElementById('downloadButton');
+    const resultSection = document.getElementById('resultSection');
+    const fileNameSpan = document.getElementById('fileName');
+
+    processButton.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        let fileSelected = fileInput.files.length > 0;
+        let languageSelected = document.querySelector('input[name="language"]:checked');
+
+        if (!fileSelected || !languageSelected) {
+            errorMessage.style.display = 'block';
+        } else {
+            errorMessage.style.display = 'none';
+            processingMessage.style.display = 'block';
+            errorStatus.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("language", languageSelected.value);
+
+            fetch('{{ url_for("make_mp3") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                processingMessage.style.display = 'none';
+                if (data.success) {
+                    fileNameSpan.textContent = data.filename;
+                    completeMessage.style.display = 'block';
+                    resultSection.style.display = 'block';
+                } else {
+                    errorStatus.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                processingMessage.style.display = 'none';
+                errorStatus.style.display = 'block';
+            });
+        }
+    });
+
+        downloadButton.addEventListener('click', () => {
+    const fileName = fileNameSpan.textContent;
+
+    // Формируем URL с параметром filename
+    const url = `/download/${encodeURIComponent(fileName)}`;
+
+    // Создаем форму данных для POST запроса
+    const formData = new FormData();
+    formData.append('filename', fileName);
+
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        } else {
+            throw new Error('Failed to download file');
+        }
+    })
+    .then(blob => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = fileName; // Указываем имя файла
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+
+
+</script>
+
+</body>
+</html>
